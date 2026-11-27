@@ -1,6 +1,6 @@
 import { Form, Input, Select } from 'antd';
 import { zodRule } from '../../lib/zodRule';
-import { tenantPlans, tenantSchema } from '../../schemas/tenants.schema';
+import { tenantPlans, tenantSchema } from '../../schemas/tenants.model.schema';
 
 const { shape } = tenantSchema;
 

@@ -2,7 +2,7 @@ import { Card, Typography } from 'antd';
 import { CrudFormDrawer } from '../../components/shared/CrudFormDrawer';
 import { CrudTable } from '../../components/shared/CrudTable';
 import { useCrudPage } from '../../lib/useCrudPage';
-import type { CreateSubscriptionDTO, Subscription } from '../../schemas/subscriptions.schema';
+import type { CreateSubscriptionDTO, Subscription } from '../../schemas/subscriptions.model.schema';
 import { useDeleteSubscription, useSaveSubscription, useSubscriptions } from './api';
 import { subscriptionColumns } from './columns';
 import { SubscriptionsFormFields } from './SubscriptionsFormFields';

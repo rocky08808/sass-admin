@@ -2,7 +2,7 @@ import { Card, Typography } from 'antd';
 import { CrudFormDrawer } from '../../components/shared/CrudFormDrawer';
 import { CrudTable } from '../../components/shared/CrudTable';
 import { useCrudPage } from '../../lib/useCrudPage';
-import type { CreateTenantDTO, Tenant } from '../../schemas/tenants.schema';
+import type { CreateTenantDTO, Tenant } from '../../schemas/tenants.model.schema';
 import { useDeleteTenant, useSaveTenant, useTenants } from './api';
 import { tenantColumns } from './columns';
 import { TenantsFormFields } from './TenantsFormFields';

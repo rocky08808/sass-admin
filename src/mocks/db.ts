@@ -1,6 +1,6 @@
 import type { Member } from '../schemas/members.schema';
-import type { Subscription } from '../schemas/subscriptions.schema';
-import type { Tenant } from '../schemas/tenants.schema';
+import type { Subscription } from '../schemas/subscriptions.model.schema';
+import type { Tenant } from '../schemas/tenants.model.schema';
 
 const seedTenants: Tenant[] = [
   {

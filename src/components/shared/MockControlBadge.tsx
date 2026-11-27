@@ -1,17 +1,6 @@
-import { CopyOutlined } from '@ant-design/icons';
 import { useQueryClient } from '@tanstack/react-query';
-import {
-  App as AntdApp,
-  Button,
-  Modal,
-  Popover,
-  Space,
-  Switch,
-  Tag,
-  Typography,
-  theme,
-} from 'antd';
-import { useState } from 'react';
+import { Button, Popover, Space, Spin, Switch, Tag, Typography } from 'antd';
+import { lazy, Suspense, useState } from 'react';
 import {
   mockDelayMs,
   resetMockDb,
@@ -19,22 +8,13 @@ import {
   setSimulateError,
   simulateError,
 } from '../../mocks/db';
-import { apiContract as subscriptionApiContract } from '../../schemas/subscriptions.schema';
-import { apiContract as tenantApiContract } from '../../schemas/tenants.schema';
 
-const apiContractJson = JSON.stringify(
-  {
-    tenants: tenantApiContract,
-    subscriptions: subscriptionApiContract,
-  },
-  null,
-  2,
+const ApiContractModal = lazy(() =>
+  import('./ApiContractModal').then(({ ApiContractModal }) => ({ default: ApiContractModal })),
 );
 
 export function MockControlBadge() {
   const queryClient = useQueryClient();
-  const { message } = AntdApp.useApp();
-  const { token } = theme.useToken();
   const [latencyEnabled, setLatencyEnabled] = useState(mockDelayMs === 500);
   const [errorSimulationEnabled, setErrorSimulationEnabled] = useState(simulateError);
   const [contractOpen, setContractOpen] = useState(false);
@@ -55,17 +35,8 @@ export function MockControlBadge() {
     await queryClient.invalidateQueries();
   };
 
-  const copyContract = async () => {
-    try {
-      await navigator.clipboard.writeText(apiContractJson);
-      message.success('API 契约已复制');
-    } catch {
-      message.error('复制 API 契约失败');
-    }
-  };
-
   return (
-    <>
+    <div>
       <Popover
         title="模拟数据调试工具"
         trigger="click"
@@ -99,35 +70,11 @@ export function MockControlBadge() {
           </Tag>
         </Button>
       </Popover>
-      <Modal
-        title="API 契约"
-        open={contractOpen}
-        onCancel={() => setContractOpen(false)}
-        width={800}
-        footer={[
-          <Button key="close" onClick={() => setContractOpen(false)}>
-            关闭
-          </Button>,
-          <Button key="copy" type="primary" icon={<CopyOutlined />} onClick={copyContract}>
-            复制 JSON
-          </Button>,
-        ]}
-      >
-        <pre
-          style={{
-            background: token.colorFillQuaternary,
-            borderRadius: token.borderRadius,
-            margin: 0,
-            maxHeight: '60vh',
-            overflow: 'auto',
-            padding: token.padding,
-            whiteSpace: 'pre-wrap',
-            wordBreak: 'break-word',
-          }}
-        >
-          <code>{apiContractJson}</code>
-        </pre>
-      </Modal>
-    </>
+      {contractOpen && (
+        <Suspense fallback={<Spin aria-label="正在加载 API 契约" />}>
+          <ApiContractModal open onClose={() => setContractOpen(false)} />
+        </Suspense>
+      )}
+    </div>
   );
 }

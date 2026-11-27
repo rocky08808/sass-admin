@@ -1,6 +1,6 @@
 import { Form, Input, InputNumber, Select, Switch } from 'antd';
 import { zodRule } from '../../lib/zodRule';
-import { subscriptionSchema } from '../../schemas/subscriptions.schema';
+import { subscriptionSchema } from '../../schemas/subscriptions.model.schema';
 
 const { shape } = subscriptionSchema;
 

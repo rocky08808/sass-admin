@@ -35,6 +35,19 @@ describe('TenantsPage', () => {
     });
   });
 
+  it('loads the API contract modal when requested', async () => {
+    const user = userEvent.setup();
+    renderPage(<MockControlBadge />);
+
+    await user.click(screen.getByRole('button', { name: 'MSW 模拟已启用' }));
+    await user.click(screen.getByRole('button', { name: '查看 API 契约' }));
+
+    const dialog = await screen.findByRole('dialog');
+    expect(within(dialog).getByText('API 契约')).toBeInTheDocument();
+    expect(within(dialog).getByText(/\/api\/tenants/)).toBeInTheDocument();
+    expect(within(dialog).getByText(/\/api\/subscriptions/)).toBeInTheDocument();
+  });
+
   it('creates a tenant through the drawer form', async () => {
     const user = userEvent.setup();
     renderPage(<TenantsPage />);

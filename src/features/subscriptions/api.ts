@@ -5,7 +5,7 @@ import {
   type CreateSubscriptionDTO,
   subscriptionSchema,
   type UpdateSubscriptionDTO,
-} from '../../schemas/subscriptions.schema';
+} from '../../schemas/subscriptions.model.schema';
 
 const url = '/api/subscriptions';
 const queryKey = ['subscriptions'];

@@ -1,5 +1,5 @@
 import { type TableColumnsType, Tag } from 'antd';
-import type { Subscription } from '../../schemas/subscriptions.schema';
+import type { Subscription } from '../../schemas/subscriptions.model.schema';
 
 export const subscriptionColumns: TableColumnsType<Subscription> = [
   { title: '套餐名称', dataIndex: 'planName' },

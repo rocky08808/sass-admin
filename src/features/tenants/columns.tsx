@@ -1,5 +1,5 @@
 import { type TableColumnsType, Tag } from 'antd';
-import type { Tenant } from '../../schemas/tenants.schema';
+import type { Tenant } from '../../schemas/tenants.model.schema';
 
 export const tenantColumns: TableColumnsType<Tenant> = [
   { title: '租户名称', dataIndex: 'name' },

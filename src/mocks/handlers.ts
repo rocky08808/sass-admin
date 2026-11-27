@@ -4,8 +4,8 @@ import { createMemberSchema, updateMemberSchema } from '../schemas/members.schem
 import {
   createSubscriptionSchema,
   updateSubscriptionSchema,
-} from '../schemas/subscriptions.schema';
-import { createTenantSchema, updateTenantSchema } from '../schemas/tenants.schema';
+} from '../schemas/subscriptions.model.schema';
+import { createTenantSchema, updateTenantSchema } from '../schemas/tenants.model.schema';
 import { db, mockDelayMs, simulateError } from './db';
 
 const notFound = () => HttpResponse.json({ message: '记录不存在' }, { status: 404 });

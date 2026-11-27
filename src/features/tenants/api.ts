@@ -5,7 +5,7 @@ import {
   type CreateTenantDTO,
   tenantSchema,
   type UpdateTenantDTO,
-} from '../../schemas/tenants.schema';
+} from '../../schemas/tenants.model.schema';
 
 const url = '/api/tenants';
 const queryKey = ['tenants'];
