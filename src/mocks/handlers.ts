@@ -6,9 +6,11 @@ import {
   updateSubscriptionSchema,
 } from '../schemas/subscriptions.schema';
 import { createTenantSchema, updateTenantSchema } from '../schemas/tenants.schema';
-import { db, mockDelayMs } from './db';
+import { db, mockDelayMs, simulateError } from './db';
 
 const notFound = () => HttpResponse.json({ message: '记录不存在' }, { status: 404 });
+const simulatedServerError = () =>
+  HttpResponse.json({ message: 'Simulated Server Error' }, { status: 500 });
 const invalid = (error: z.ZodError) =>
   HttpResponse.json({ message: error.issues[0]?.message ?? '参数错误' }, { status: 400 });
 
@@ -27,10 +29,12 @@ function crudHandlers<K extends keyof typeof db>(
   return [
     http.get(url, async () => {
       await waitForMockDelay();
+      if (simulateError) return simulatedServerError();
       return HttpResponse.json(rows());
     }),
     http.post(url, async ({ request }) => {
       await waitForMockDelay();
+      if (simulateError) return simulatedServerError();
       const result = createSchema.safeParse(await request.json());
       if (!result.success) return invalid(result.error);
       const row = { ...result.data, ...defaults(), id: crypto.randomUUID() };
@@ -39,6 +43,7 @@ function crudHandlers<K extends keyof typeof db>(
     }),
     http.put(`${url}/:id`, async ({ request, params }) => {
       await waitForMockDelay();
+      if (simulateError) return simulatedServerError();
       const row = rows().find((item) => item.id === params.id);
       if (!row) return notFound();
       const result = updateSchema.safeParse(await request.json());
@@ -48,6 +53,7 @@ function crudHandlers<K extends keyof typeof db>(
     }),
     http.delete(`${url}/:id`, async ({ params }) => {
       await waitForMockDelay();
+      if (simulateError) return simulatedServerError();
       const index = rows().findIndex((item) => item.id === params.id);
       if (index === -1) return notFound();
       rows().splice(index, 1);

@@ -1,6 +1,7 @@
-import { screen, within } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
+import { MockControlBadge } from '../../components/shared/MockControlBadge';
 import { db } from '../../mocks/db';
 import { renderPage } from '../../test/renderPage';
 import { TenantsPage } from './TenantsPage';
@@ -12,6 +13,26 @@ describe('TenantsPage', () => {
     expect(await screen.findByText('星河科技')).toBeInTheDocument();
     expect(screen.getByText('qingning.example.com')).toBeInTheDocument();
     expect(screen.getByText('10 条/页')).toBeInTheDocument();
+  });
+
+  it('shows a simulated server error toast without crashing the page', async () => {
+    const user = userEvent.setup();
+    renderPage(
+      <>
+        <MockControlBadge />
+        <TenantsPage />
+      </>,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'MSW 模拟已启用' }));
+    await user.click(screen.getByRole('switch', { name: '模拟服务器错误' }));
+
+    expect(await screen.findByRole('heading', { name: '租户管理' })).toBeInTheDocument();
+    await waitFor(() => {
+      expect(document.querySelector('.ant-message-notice')).toHaveTextContent(
+        'Simulated Server Error',
+      );
+    });
   });
 
   it('creates a tenant through the drawer form', async () => {

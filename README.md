@@ -106,3 +106,37 @@ Read AGENTS.md. Add edge-case unit tests for subscriptions validation and run np
 
 1. 所有接口数据结构均定义在 `src/schemas/*.schema.ts`，可直接作为前后端接口文档对齐。
 2. 当真实后端 API 就绪后，只需在 `src/main.tsx` 中关闭 MSW 启动逻辑，并在 `vite.config.ts` 中配置 `server.proxy` 指向真实后端地址即可切换，业务代码无需改动。
+
+## 工程亮点：Harness 架构守护与前后端联调台
+
+### 1. 架构适应度测试 (`src/test/architecture.test.ts`)
+为防止多轮 AI 迭代导致代码腐化或破坏公共组件复用约定，项目内置了静态架构守护测试（随 `npm run verify` 自动执行）：
+- **契约强绑定**：自动扫描 `src/features/*`，强制校验每个业务模块必须存在对应的 `src/schemas/*.schema.ts` 与集成测试文件。
+- **组件复用硬约束**：静态检测所有业务页面禁止直接从 `antd` 引入裸 `Table` 或 `Drawer`，强制统一复用 `CrudTable` 与 `CrudFormDrawer`。
+- **网络层隔离**：拦截业务 UI 文件中的裸 `fetch()` 调用，确保所有请求收敛于 `api.ts` 并经过 Zod 契约校验。
+
+### 2. 可视化 Mock 联调控制台 (`MockControlBadge`)
+- 通过环境变量 `VITE_ENABLE_MOCK` 控制 MSW 拦截器启停，后端就绪后无需修改业务代码即可无缝切换至真实 API。
+- 开启 Mock 时，页面右上角提供 **MSW Mock 状态浮标**，支持**一键重置内存数据库**以及**开启/关闭 500ms 网络延迟模拟**，方便测试骨架屏、Loading 态及边界交互。
+
+---
+
+## 双 Agent 协同开发实录 (Workflow Demo)
+
+本项目采用 **Claude Code + Codex CLI** 协同构建与验收，全流程共享 `AGENTS.md` 规范与 `npm run verify` 自动化门禁：
+
+1. **Harness 基线初始化**：编写 `AGENTS.md`、`CLAUDE.md` 与 `.claude/commands/add-module.md`，确立技术栈与复用红线。
+2. **Claude Code 搭建骨架与核心模块**：通过 Plan Mode 生成项目架构、封装 `CrudTable` / `CrudFormDrawer`，并交付 **租户管理 (`tenants`)** 与 **订阅套餐 (`subscriptions`)** 两个完整 CRUD 模块。
+3. **Codex CLI 强化工程护栏与测试**：基于同一份 `AGENTS.md`，使用 Codex 补充 `architecture.test.ts` 架构守护测试、Mock 延迟控制台及边界用例。
+4. **单命令质量门禁验收**：
+   ```bash
+   \$ npm run verify
+   > tsc --noEmit && biome check ./src && vitest run
+
+   ✓ src/test/architecture.test.ts (3 tests)
+   ✓ src/features/tenants/TenantsPage.test.tsx (2 tests)
+   ✓ src/features/subscriptions/SubscriptionsPage.test.tsx (2 tests)
+   Test Files  3 passed (3)
+   Tests       7 passed (7)
+   ```
+

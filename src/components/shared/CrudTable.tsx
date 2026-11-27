@@ -1,6 +1,16 @@
 import { PlusOutlined } from '@ant-design/icons';
-import { Alert, Button, Flex, Input, Popconfirm, Space, Table, type TableColumnsType } from 'antd';
-import { type ReactNode, useState } from 'react';
+import {
+  Alert,
+  App,
+  Button,
+  Flex,
+  Input,
+  Popconfirm,
+  Space,
+  Table,
+  type TableColumnsType,
+} from 'antd';
+import { type ReactNode, useEffect, useState } from 'react';
 
 interface CrudTableProps<T> {
   columns: TableColumnsType<T>;
@@ -29,9 +39,14 @@ export function CrudTable<T extends { id: string }>({
   onDelete,
   toolbar,
 }: CrudTableProps<T>) {
+  const { message } = App.useApp();
   const [keyword, setKeyword] = useState('');
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+
+  useEffect(() => {
+    if (error) message.error(error.message);
+  }, [error, message]);
 
   const needle = keyword.trim().toLowerCase();
   const rows = needle

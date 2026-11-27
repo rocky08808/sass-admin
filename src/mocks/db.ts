@@ -90,9 +90,14 @@ export const db = {
 };
 
 export let mockDelayMs: 0 | 500 = 0;
+export let simulateError = false;
 
 export function setMockDelayMs(delayMs: 0 | 500) {
   mockDelayMs = delayMs;
+}
+
+export function setSimulateError(enabled: boolean) {
+  simulateError = enabled;
 }
 
 export function resetMockDb() {

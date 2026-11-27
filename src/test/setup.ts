@@ -2,7 +2,7 @@ import '@testing-library/jest-dom/vitest';
 import '@ant-design/v5-patch-for-react-19';
 import { cleanup } from '@testing-library/react';
 import { afterAll, afterEach, beforeAll, vi } from 'vitest';
-import { resetMockDb } from '../mocks/db';
+import { resetMockDb, setMockDelayMs, setSimulateError } from '../mocks/db';
 import { server } from '../mocks/server';
 
 Object.defineProperty(window, 'matchMedia', {
@@ -35,5 +35,7 @@ afterEach(() => {
   cleanup();
   server.resetHandlers();
   resetMockDb();
+  setMockDelayMs(0);
+  setSimulateError(false);
 });
 afterAll(() => server.close());
