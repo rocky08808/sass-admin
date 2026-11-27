@@ -3,6 +3,27 @@ import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   plugins: [react()],
+  build: {
+    rolldownOptions: {
+      output: {
+        codeSplitting: {
+          groups: [
+            {
+              name: 'react-vendor',
+              test: /node_modules[\\/](?:react|react-dom|scheduler)[\\/]/,
+              priority: 10,
+            },
+            {
+              name: 'antd-vendor',
+              test: /node_modules[\\/](?:antd|@ant-design|@rc-component|rc-[^\\/]+)[\\/]/,
+              priority: 5,
+              maxSize: 400 * 1024,
+            },
+          ],
+        },
+      },
+    },
+  },
   test: {
     environment: 'jsdom',
     environmentOptions: { jsdom: { url: 'http://localhost:3000' } },

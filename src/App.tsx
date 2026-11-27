@@ -1,10 +1,20 @@
 import { CreditCardOutlined, TeamOutlined, UserOutlined } from '@ant-design/icons';
-import { Layout, Menu, Typography, theme } from 'antd';
+import { Layout, Menu, Spin, Typography, theme } from 'antd';
+import { lazy, Suspense } from 'react';
 import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router';
 import { MockControlBadge } from './components/shared/MockControlBadge';
-import { MembersPage } from './features/members/MembersPage';
-import { SubscriptionsPage } from './features/subscriptions/SubscriptionsPage';
-import { TenantsPage } from './features/tenants/TenantsPage';
+
+const TenantsPage = lazy(() =>
+  import('./features/tenants/TenantsPage').then(({ TenantsPage }) => ({ default: TenantsPage })),
+);
+const SubscriptionsPage = lazy(() =>
+  import('./features/subscriptions/SubscriptionsPage').then(({ SubscriptionsPage }) => ({
+    default: SubscriptionsPage,
+  })),
+);
+const MembersPage = lazy(() =>
+  import('./features/members/MembersPage').then(({ MembersPage }) => ({ default: MembersPage })),
+);
 
 const menuItems = [
   { key: '/tenants', icon: <TeamOutlined />, label: '租户管理' },
@@ -47,12 +57,14 @@ export function App() {
           {import.meta.env.VITE_ENABLE_MOCK !== 'false' && <MockControlBadge />}
         </Layout.Header>
         <Layout.Content style={{ padding: token.paddingLG }}>
-          <Routes>
-            <Route path="/tenants" element={<TenantsPage />} />
-            <Route path="/subscriptions" element={<SubscriptionsPage />} />
-            <Route path="/members" element={<MembersPage />} />
-            <Route path="*" element={<Navigate to="/tenants" replace />} />
-          </Routes>
+          <Suspense fallback={<Spin />}>
+            <Routes>
+              <Route path="/tenants" element={<TenantsPage />} />
+              <Route path="/subscriptions" element={<SubscriptionsPage />} />
+              <Route path="/members" element={<MembersPage />} />
+              <Route path="*" element={<Navigate to="/tenants" replace />} />
+            </Routes>
+          </Suspense>
         </Layout.Content>
       </Layout>
     </Layout>
