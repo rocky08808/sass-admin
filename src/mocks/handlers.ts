@@ -1,5 +1,6 @@
 import { HttpResponse, http } from 'msw';
 import type { z } from 'zod';
+import { createMemberSchema, updateMemberSchema } from '../schemas/members.schema';
 import {
   createSubscriptionSchema,
   updateSubscriptionSchema,
@@ -51,4 +52,7 @@ export const handlers = [
     createdAt: new Date().toISOString(),
   })),
   ...crudHandlers('subscriptions', createSubscriptionSchema, updateSubscriptionSchema),
+  ...crudHandlers('members', createMemberSchema, updateMemberSchema, () => ({
+    joinedAt: new Date().toISOString(),
+  })),
 ];

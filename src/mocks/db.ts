@@ -1,3 +1,4 @@
+import type { Member } from '../schemas/members.schema';
 import type { Subscription } from '../schemas/subscriptions.schema';
 import type { Tenant } from '../schemas/tenants.schema';
 
@@ -55,12 +56,41 @@ const seedSubscriptions: Subscription[] = [
   },
 ];
 
+const seedMembers: Member[] = [
+  {
+    id: 'm-1',
+    name: '林晓',
+    email: 'linxiao@example.com',
+    role: 'Owner',
+    status: 'Active',
+    joinedAt: '2026-02-10T08:00:00.000Z',
+  },
+  {
+    id: 'm-2',
+    name: '陈默',
+    email: 'chenmo@example.com',
+    role: 'Admin',
+    status: 'Active',
+    joinedAt: '2026-04-18T08:00:00.000Z',
+  },
+  {
+    id: 'm-3',
+    name: '周雨',
+    email: 'zhouyu@example.com',
+    role: 'Member',
+    status: 'Invited',
+    joinedAt: '2026-09-05T08:00:00.000Z',
+  },
+];
+
 export const db = {
   tenants: structuredClone(seedTenants),
   subscriptions: structuredClone(seedSubscriptions),
+  members: structuredClone(seedMembers),
 };
 
 export function resetDb() {
   db.tenants = structuredClone(seedTenants);
   db.subscriptions = structuredClone(seedSubscriptions);
+  db.members = structuredClone(seedMembers);
 }

@@ -1,12 +1,14 @@
-import { CreditCardOutlined, TeamOutlined } from '@ant-design/icons';
+import { CreditCardOutlined, TeamOutlined, UserOutlined } from '@ant-design/icons';
 import { Layout, Menu, Typography, theme } from 'antd';
 import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router';
+import { MembersPage } from './features/members/MembersPage';
 import { SubscriptionsPage } from './features/subscriptions/SubscriptionsPage';
 import { TenantsPage } from './features/tenants/TenantsPage';
 
 const menuItems = [
   { key: '/tenants', icon: <TeamOutlined />, label: '租户管理' },
   { key: '/subscriptions', icon: <CreditCardOutlined />, label: '订阅套餐' },
+  { key: '/members', icon: <UserOutlined />, label: '成员管理' },
 ];
 
 export function App() {
@@ -36,6 +38,7 @@ export function App() {
           <Routes>
             <Route path="/tenants" element={<TenantsPage />} />
             <Route path="/subscriptions" element={<SubscriptionsPage />} />
+            <Route path="/members" element={<MembersPage />} />
             <Route path="*" element={<Navigate to="/tenants" replace />} />
           </Routes>
         </Layout.Content>
