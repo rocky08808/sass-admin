@@ -2,7 +2,7 @@ import '@testing-library/jest-dom/vitest';
 import '@ant-design/v5-patch-for-react-19';
 import { cleanup } from '@testing-library/react';
 import { afterAll, afterEach, beforeAll, vi } from 'vitest';
-import { resetDb } from '../mocks/db';
+import { resetMockDb } from '../mocks/db';
 import { server } from '../mocks/server';
 
 Object.defineProperty(window, 'matchMedia', {
@@ -34,6 +34,6 @@ beforeAll(() => server.listen({ onUnhandledRequest: 'error' }));
 afterEach(() => {
   cleanup();
   server.resetHandlers();
-  resetDb();
+  resetMockDb();
 });
 afterAll(() => server.close());

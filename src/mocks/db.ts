@@ -89,7 +89,13 @@ export const db = {
   members: structuredClone(seedMembers),
 };
 
-export function resetDb() {
+export let mockDelayMs: 0 | 500 = 0;
+
+export function setMockDelayMs(delayMs: 0 | 500) {
+  mockDelayMs = delayMs;
+}
+
+export function resetMockDb() {
   db.tenants = structuredClone(seedTenants);
   db.subscriptions = structuredClone(seedSubscriptions);
   db.members = structuredClone(seedMembers);

@@ -25,3 +25,12 @@ Follow Contract-First development for any new module:
 - **Verification Gate**: Before concluding ANY task, you MUST execute:
   `npm run verify`
   (Runs `tsc --noEmit`, `biome check`, and `vitest run`). Zero errors or warnings allowed.
+
+## 5. Advanced Harness Guardrails (Architecture & DevTools)
+- **Architecture Fitness Tests**: `src/test/architecture.test.ts` MUST exist and run as part of `npm run test`. It statically scans `src/features/` to enforce:
+  1. Every feature module has a corresponding `src/schemas/<module>.schema.ts` and `*.test.tsx`.
+  2. Feature UI files MUST NOT import `Table` or `Drawer` directly from `antd` (must use `CrudTable` and `CrudFormDrawer`).
+  3. Direct `fetch(` calls are forbidden outside `api.ts` files.
+- **Mock DevTools & Env Switch**:
+  - Support `VITE_ENABLE_MOCK` env flag (default `true` in `.env.example`).
+  - Include a subtle `MockControlBadge` component in the top-right header when Mock is active, allowing 1-click **Reset Mock DB** and toggling **Simulated Latency (500ms)**.

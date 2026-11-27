@@ -1,4 +1,4 @@
-import { HttpResponse, http } from 'msw';
+import { delay, HttpResponse, http } from 'msw';
 import type { z } from 'zod';
 import { createMemberSchema, updateMemberSchema } from '../schemas/members.schema';
 import {
@@ -6,7 +6,7 @@ import {
   updateSubscriptionSchema,
 } from '../schemas/subscriptions.schema';
 import { createTenantSchema, updateTenantSchema } from '../schemas/tenants.schema';
-import { db } from './db';
+import { db, mockDelayMs } from './db';
 
 const notFound = () => HttpResponse.json({ message: '记录不存在' }, { status: 404 });
 const invalid = (error: z.ZodError) =>
@@ -20,10 +20,17 @@ function crudHandlers<K extends keyof typeof db>(
 ) {
   const url = `/api/${key}`;
   const rows = () => db[key] as { id: string }[];
+  const waitForMockDelay = async () => {
+    if (mockDelayMs > 0) await delay(mockDelayMs);
+  };
 
   return [
-    http.get(url, () => HttpResponse.json(rows())),
+    http.get(url, async () => {
+      await waitForMockDelay();
+      return HttpResponse.json(rows());
+    }),
     http.post(url, async ({ request }) => {
+      await waitForMockDelay();
       const result = createSchema.safeParse(await request.json());
       if (!result.success) return invalid(result.error);
       const row = { ...result.data, ...defaults(), id: crypto.randomUUID() };
@@ -31,6 +38,7 @@ function crudHandlers<K extends keyof typeof db>(
       return HttpResponse.json(row, { status: 201 });
     }),
     http.put(`${url}/:id`, async ({ request, params }) => {
+      await waitForMockDelay();
       const row = rows().find((item) => item.id === params.id);
       if (!row) return notFound();
       const result = updateSchema.safeParse(await request.json());
@@ -38,7 +46,8 @@ function crudHandlers<K extends keyof typeof db>(
       Object.assign(row, result.data);
       return HttpResponse.json(row);
     }),
-    http.delete(`${url}/:id`, ({ params }) => {
+    http.delete(`${url}/:id`, async ({ params }) => {
+      await waitForMockDelay();
       const index = rows().findIndex((item) => item.id === params.id);
       if (index === -1) return notFound();
       rows().splice(index, 1);
