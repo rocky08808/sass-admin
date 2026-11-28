@@ -99,6 +99,6 @@ describe('TenantsPage', () => {
     await user.click(screen.getByRole('button', { name: /提\s*交/ }));
 
     expect(await screen.findByText('请输入租户名称')).toBeInTheDocument();
-    expect(screen.getByText('请输入域名')).toBeInTheDocument();
+    expect(await screen.findByText('请输入域名')).toBeInTheDocument();
   });
 });

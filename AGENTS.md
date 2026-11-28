@@ -16,7 +16,7 @@ To maximize reuse and keep UI consistent across modules:
 
 ## 3. Fast Frontend-Backend Collaboration Rule
 Follow Contract-First development for any new module:
-1. Define Zod schemas & TS types in `src/schemas/<domain>.schema.ts`.
+1. Define Zod schemas & TS types in `src/schemas/<domain>.model.schema.ts`. In `src/schemas/<domain>.schema.ts`, re-export them and export `apiContract`, then register that contract in `src/components/shared/ApiContractModal.tsx`.
 2. Add stateful mock data and RESTful handlers in `src/mocks/db.ts` & `src/mocks/handlers.ts`.
 3. Build React Query hooks (`api.ts`) and UI pages consuming `CrudTable` and `CrudFormDrawer`.
 
@@ -25,6 +25,7 @@ Follow Contract-First development for any new module:
 - **Verification Gate**: Before concluding ANY task, you MUST execute:
   `npm run verify`
   (Runs `tsc --noEmit`, `biome check`, `vitest run`, and the production build). Zero errors or warnings allowed.
+- **CI Gate**: CI runs `npm run verify:ci` (same checks, but Biome never rewrites files and warnings fail), then `npm run smoke`, which opens every page of the production build in a browser. Add each new route to `scripts/smoke.mjs`.
 
 ## 5. Advanced Harness Guardrails (Architecture & DevTools)
 - **Architecture Fitness Tests**: `src/test/architecture.test.ts` MUST exist and run as part of `npm run test`. It statically scans `src/features/` to enforce:

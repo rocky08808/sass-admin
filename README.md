@@ -59,6 +59,8 @@ npm run verify
 3. `npm run test`：Vitest 自动化集成测试
 4. `npm run build`：类型检查与生产构建
 
+CI 使用 `npm run verify:ci`（只检查、不改写，警告即失败），随后运行 `npm run smoke`，在浏览器中打开生产构建的每个页面。本地首次运行冒烟测试前需执行 `npx playwright install chromium`，并先 `npm run build`。
+
 ---
 
 ## 目录结构
@@ -105,8 +107,17 @@ Read AGENTS.md. Add edge-case unit tests for subscriptions validation and run np
 
 ## 前后端联调切换
 
-1. 所有接口数据结构均定义在 `src/schemas/*.schema.ts`，可直接作为前后端接口文档对齐。
-2. 当真实后端 API 就绪后，只需在 `src/main.tsx` 中关闭 MSW 启动逻辑，并在 `vite.config.ts` 中配置 `server.proxy` 指向真实后端地址即可切换，业务代码无需改动。
+1. 所有接口数据结构均定义在 `src/schemas/`，可直接作为前后端接口文档对齐。
+2. 真实后端就绪后，把 `.env.example` 复制为 `.env.local`，并修改：
+   ```bash
+   VITE_ENABLE_MOCK=false
+   API_PROXY_TARGET=http://localhost:8080   # 换成后端地址
+   ```
+3. 重启 `npm run dev`，`/api` 请求会代理到后端，业务代码无需改动。
+
+代理只在本地 `dev` / `preview` 中生效。正式部署时需在网关或 Web 服务器上转发 `/api`。
+
+---
 
 ## 工程亮点：Harness 架构守护与前后端联调台
 
@@ -131,13 +142,17 @@ Read AGENTS.md. Add edge-case unit tests for subscriptions validation and run np
 3. **Codex CLI 强化工程护栏与测试**：基于同一份 `AGENTS.md`，使用 Codex 补充 `architecture.test.ts` 架构守护测试、Mock 延迟控制台及边界用例。
 4. **单命令质量门禁验收**：
    ```bash
-   \$ npm run verify
-   > tsc --noEmit && biome check ./src && vitest run
+   $ npm run verify:ci
+   > npm run typecheck && npm run lint:ci && npm run test && npm run build
 
-   ✓ src/test/architecture.test.ts (3 tests)
-   ✓ src/features/tenants/TenantsPage.test.tsx (2 tests)
-   ✓ src/features/subscriptions/SubscriptionsPage.test.tsx (2 tests)
-   Test Files  3 passed (3)
-   Tests       7 passed (7)
+    Test Files  4 passed (4)
+         Tests  15 passed (15)
+   ✓ built
+
+   $ npm run smoke
+   ok   /tenants
+   ok   /subscriptions
+   ok   /members
    ```
+   以上为节选输出。
 
