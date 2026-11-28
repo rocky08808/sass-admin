@@ -55,7 +55,7 @@ npm run verify
 ```
 该命令会依次执行：
 1. `npm run typecheck`：TypeScript 静态类型检查
-2. `npm run lint`：Biome 代码规范与格式校验（带 `--write`，会自动改写 `src` 中可修复的问题）
+2. `npm run lint`：Biome 只读代码规范与格式校验，不会改写源码
 3. `npm run test`：Vitest 自动化集成测试
 4. `npm run build`：类型检查与生产构建
 
