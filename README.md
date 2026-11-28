@@ -72,19 +72,92 @@ CI 使用 `npm run verify:ci`（只检查、不改写，警告即失败），随
 │   └── add-module.md          # 一键生成标准 CRUD 业务模块的 SOP
 ├── biome.json                 # [Harness] 统一代码规范与格式配置
 └── src/
-    ├── schemas/               # [契约层] Zod Schema 定义与 TS 类型导出
-    ├── mocks/                 # [Mock层] MSW 内存数据库 (db.ts) 与路由拦截 (handlers.ts)
-    ├── components/shared/     # [公共组件] CrudTable.tsx & CrudFormDrawer.tsx
-    ├── features/              # [业务层] 按领域隔离的业务模块
+    ├── schemas/               # [契约层] Zod Schema、DTO、TS 类型及 API Contract
+    ├── mocks/                 # [Mock 层] MSW 内存数据库 (db.ts) 与有状态路由 (handlers.ts)
+    ├── components/shared/     # [公共组件] CrudTable、CrudFormDrawer、Mock 控制台等
+    ├── features/              # [业务层] 按领域隔离的页面、请求与列配置
     │   ├── tenants/           # 租户管理模块
     │   ├── subscriptions/     # 订阅套餐模块
     │   └── members/           # 成员管理模块
     ├── lib/                   # 通用工具 (请求封装 / 表单校验 / CRUD 页面状态)
-    ├── test/                  # Vitest 环境垫片 (matchMedia / ResizeObserver)
+    ├── test/                  # Vitest 环境垫片及架构适应度测试
     ├── App.tsx                # 路由与 Ant Design 全局布局
     ├── AppProviders.tsx       # React Query 与 Ant Design 全局配置 (中文语言包)
     └── main.tsx               # 应用入口（启动 MSW 后挂载 React）
 ```
+
+---
+
+## 数据流与代码说明
+
+一个标准业务模块遵循以下单向数据流：
+
+```text
+页面组件（Page）
+  -> React Query Hooks（features/<module>/api.ts）
+  -> HTTP 请求（lib/request.ts）
+  -> Zod Schema 校验（schemas/<module>.model.schema.ts）
+  -> 业务页面渲染（CrudTable / CrudFormDrawer）
+```
+
+各层职责如下：
+
+- `src/schemas/<module>.model.schema.ts`：定义实体、创建/更新 DTO、Zod 校验规则与派生 TypeScript 类型。
+- `src/schemas/<module>.schema.ts`：重导出模型与类型，并导出供接口文档弹窗使用的 `apiContract`。
+- `src/features/<module>/api.ts`：唯一放置该模块 HTTP 请求与 React Query hooks 的位置。
+- `src/features/<module>/<Module>Page.tsx`：组合公共表格、抽屉和业务表单字段，不直接调用接口。
+- `src/features/<module>/columns.tsx`：定义列表列及操作相关展示逻辑。
+- `src/mocks/db.ts` / `src/mocks/handlers.ts`：维护内存数据并实现完整、有状态的 GET/POST/PUT/DELETE Mock。
+- `src/components/shared/`：跨业务模块复用的表格、表单抽屉、契约弹窗和 Mock 控制组件。
+
+业务请求必须经过 `lib/request.ts` 的 Zod 校验。请求成功后会使用 Zod 将后端响应解析为确定的类型；响应结构不符合契约时会抛出异常，而不会静默传入页面。
+
+### 列表与表单示例
+
+新增或编辑页面统一使用公共组件：
+
+```tsx
+<CrudTable<Tenant>
+  columns={tenantColumns}
+  data={data}
+  loading={isLoading}
+  error={error}
+  searchKeys={['name', 'domain']}
+  onCreate={page.openCreate}
+  onEdit={page.openEdit}
+  onDelete={page.destroy}
+/>
+
+<CrudFormDrawer<CreateTenantDTO>
+  open={page.open}
+  title={page.editing ? '编辑租户' : '新建租户'}
+  initialValues={page.editing ?? defaults}
+  loading={save.isPending}
+  onSubmit={page.submit}
+  onClose={page.close}
+>
+  <TenantsFormFields />
+</CrudFormDrawer>
+```
+
+React Query API 层示例：
+
+```ts
+const url = '/api/tenants';
+
+export function useTenants() {
+  return useQuery({
+    queryKey: ['tenants'],
+    queryFn: () => request(z.array(tenantSchema), url),
+  });
+}
+```
+
+完整参考可查看：
+
+- 租户页面：[TenantsPage.tsx](src/features/tenants/TenantsPage.tsx)
+- 租户请求：[api.ts](src/features/tenants/api.ts)
+- 租户契约：[tenants.schema.ts](src/schemas/tenants.schema.ts)
 
 ---
 
@@ -105,6 +178,29 @@ Read AGENTS.md. Add edge-case unit tests for subscriptions validation and run np
 
 ---
 
+## 新增业务模块流程
+
+推荐使用 `/add-module <module-name>` 或手动按照以下顺序接入：
+
+1. 在 `src/schemas/<module>.model.schema.ts` 中定义实体、Create/Update DTO、Zod Schema 和导出类型。
+2. 在 `src/schemas/<module>.schema.ts` 中重导出模型，并导出包含方法、路径、请求体和响应校验的 `apiContract`。
+3. 在 `src/components/shared/ApiContractModal.tsx` 注册模块契约。
+4. 在 `src/mocks/db.ts` 中添加内存初始数据，在 `src/mocks/handlers.ts` 中实现状态化 CRUD 接口。
+5. 在 `src/features/<module>/api.ts` 中使用 React Query 和 `lib/request.ts` 封装查询、保存和删除 hooks。
+6. 在 `src/features/<module>/` 中使用 `CrudTable`、`CrudFormDrawer` 和领域表单字段实现页面与列配置。
+7. 在 `src/features/<module>/<Module>Page.test.tsx` 中编写集成测试。
+8. 在 `src/App.tsx` 中增加懒加载页面路由，并在 `scripts/smoke.mjs` 中增加冒烟检查。
+9. 执行 `npm run verify`；通过后再执行 `npm run verify:ci` 和 `npm run smoke`。
+
+架构适应度测试会阻止以下代码腐化：
+
+- 业务模块缺少对应的 `<module>.schema.ts`
+- 业务模块缺少 `.test.tsx`
+- 页面直接从 `antd` 导入裸 `Table` 或 `Drawer`
+- 在 `api.ts` 以外的业务文件中直接调用 `fetch()`
+
+---
+
 ## 前后端联调切换
 
 1. 所有接口数据结构均定义在 `src/schemas/`，可直接作为前后端接口文档对齐。
@@ -116,6 +212,41 @@ Read AGENTS.md. Add edge-case unit tests for subscriptions validation and run np
 3. 重启 `npm run dev`，`/api` 请求会代理到后端，业务代码无需改动。
 
 代理只在本地 `dev` / `preview` 中生效。正式部署时需在网关或 Web 服务器上转发 `/api`。
+
+### 环境变量
+
+| 变量 | 默认值 | 说明 |
+| --- | --- | --- |
+| `VITE_ENABLE_MOCK` | `true` | 为 `true` 时启动浏览器端 MSW Mock；为 `false` 时关闭 Mock，并显示真实后端请求入口。 |
+| `API_PROXY_TARGET` | `http://localhost:8080` | 仅在 `VITE_ENABLE_MOCK=false` 时用于代理 `/api/*` 的目标后端地址。 |
+
+启动时会读取 `.env`、`.env.local` 等 Vite 环境文件。环境变量变更后需要重启开发服务器。
+
+切换到真实后端时，接口的路径、HTTP 方法、请求体和响应结构仍须与 `src/schemas/` 中的契约保持一致。
+
+---
+
+## 页面与常用命令
+
+应用默认路由如下：
+
+| 路径 | 页面 | 内容 |
+| --- | --- | --- |
+| `/tenants` | 租户管理 | 租户的查询、新增、编辑、状态切换和删除 |
+| `/subscriptions` | 订阅套餐 | 套餐周期、价格、席位上限及状态 CRUD |
+| `/members` | 成员管理 | 成员查询、新增、编辑、角色与状态管理及删除 |
+
+常用命令：
+
+| 命令 | 用途 |
+| --- | --- |
+| `npm run dev` | 启动 Vite 开发服务器 |
+| `npm run test` | 运行一次 Vitest 测试及架构适应度测试 |
+| `npm run typecheck` | 单独执行 TypeScript 严格类型检查 |
+| `npm run verify` | 本地完整验收：类型检查、Biome、Vitest 和生产构建 |
+| `npm run verify:ci` | CI 验收：只检查、不改写，并将警告视为失败 |
+| `npm run build` | TypeScript 检查后生成生产构建 |
+| `npm run smoke` | 在真实 Chromium 中打开生产构建的全部页面 |
 
 ---
 
