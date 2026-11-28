@@ -46,6 +46,7 @@ describe('TenantsPage', () => {
     expect(within(dialog).getByText('API 契约')).toBeInTheDocument();
     expect(within(dialog).getByText(/\/api\/tenants/)).toBeInTheDocument();
     expect(within(dialog).getByText(/\/api\/subscriptions/)).toBeInTheDocument();
+    expect(within(dialog).getByText(/\/api\/members/)).toBeInTheDocument();
   });
 
   it('creates a tenant through the drawer form', async () => {

@@ -1,5 +1,6 @@
 import { CopyOutlined } from '@ant-design/icons';
 import { App as AntdApp, Button, Modal, theme } from 'antd';
+import { apiContract as memberApiContract } from '../../schemas/members.schema';
 import { apiContract as subscriptionApiContract } from '../../schemas/subscriptions.schema';
 import { apiContract as tenantApiContract } from '../../schemas/tenants.schema';
 
@@ -7,6 +8,7 @@ const apiContractJson = JSON.stringify(
   {
     tenants: tenantApiContract,
     subscriptions: subscriptionApiContract,
+    members: memberApiContract,
   },
   null,
   2,

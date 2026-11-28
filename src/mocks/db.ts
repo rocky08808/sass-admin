@@ -1,4 +1,4 @@
-import type { Member } from '../schemas/members.schema';
+import type { Member } from '../schemas/members.model.schema';
 import type { Subscription } from '../schemas/subscriptions.model.schema';
 import type { Tenant } from '../schemas/tenants.model.schema';
 

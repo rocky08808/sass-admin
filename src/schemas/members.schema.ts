@@ -1,20 +1,43 @@
 import { z } from 'zod';
+import { createMemberSchema, memberSchema, updateMemberSchema } from './members.model.schema';
 
-export const memberRoles = ['Owner', 'Admin', 'Member'] as const;
-export const memberStatuses = ['Active', 'Invited', 'Disabled'] as const;
+export type {
+  CreateMemberDTO,
+  Member,
+  UpdateMemberDTO,
+} from './members.model.schema';
+export {
+  createMemberSchema,
+  memberRoles,
+  memberSchema,
+  memberStatuses,
+  updateMemberSchema,
+} from './members.model.schema';
 
-export const memberSchema = z.object({
-  id: z.string(),
-  name: z.string('请输入姓名').trim().min(1, '请输入姓名'),
-  email: z.string('请输入邮箱').trim().pipe(z.email('请输入有效的邮箱')),
-  role: z.enum(memberRoles, '请选择角色'),
-  status: z.enum(memberStatuses, '请选择状态'),
-  joinedAt: z.iso.datetime(),
-});
-
-export const createMemberSchema = memberSchema.omit({ id: true, joinedAt: true });
-export const updateMemberSchema = createMemberSchema.partial();
-
-export type Member = z.infer<typeof memberSchema>;
-export type CreateMemberDTO = z.infer<typeof createMemberSchema>;
-export type UpdateMemberDTO = z.infer<typeof updateMemberSchema>;
+export const apiContract = {
+  module: 'members',
+  endpoints: [
+    {
+      method: 'GET',
+      path: '/api/members',
+      response: { status: 200, schema: z.toJSONSchema(z.array(memberSchema)) },
+    },
+    {
+      method: 'POST',
+      path: '/api/members',
+      requestBody: z.toJSONSchema(createMemberSchema),
+      response: { status: 201, schema: z.toJSONSchema(memberSchema) },
+    },
+    {
+      method: 'PUT',
+      path: '/api/members/{id}',
+      requestBody: z.toJSONSchema(updateMemberSchema),
+      response: { status: 200, schema: z.toJSONSchema(memberSchema) },
+    },
+    {
+      method: 'DELETE',
+      path: '/api/members/{id}',
+      response: { status: 204 },
+    },
+  ],
+} as const;

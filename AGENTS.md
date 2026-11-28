@@ -24,7 +24,7 @@ Follow Contract-First development for any new module:
 - **AntD Test Setup**: `src/test/setup.ts` MUST polyfill `window.matchMedia`, `ResizeObserver`, and `window.getComputedStyle` so antd v5 components render without errors in jsdom.
 - **Verification Gate**: Before concluding ANY task, you MUST execute:
   `npm run verify`
-  (Runs `tsc --noEmit`, `biome check`, and `vitest run`). Zero errors or warnings allowed.
+  (Runs `tsc --noEmit`, `biome check`, `vitest run`, and the production build). Zero errors or warnings allowed.
 
 ## 5. Advanced Harness Guardrails (Architecture & DevTools)
 - **Architecture Fitness Tests**: `src/test/architecture.test.ts` MUST exist and run as part of `npm run test`. It statically scans `src/features/` to enforce:

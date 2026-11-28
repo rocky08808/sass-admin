@@ -1,6 +1,6 @@
 import { Form, Input, Select } from 'antd';
 import { zodRule } from '../../lib/zodRule';
-import { memberRoles, memberSchema, memberStatuses } from '../../schemas/members.schema';
+import { memberRoles, memberSchema, memberStatuses } from '../../schemas/members.model.schema';
 import { memberStatusMeta } from './columns';
 
 const { shape } = memberSchema;

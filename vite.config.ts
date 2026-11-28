@@ -6,6 +6,8 @@ export default defineConfig({
   build: {
     rolldownOptions: {
       output: {
+        // Without this, split antd chunks can run out of order and blank the production page.
+        strictExecutionOrder: true,
         codeSplitting: {
           groups: [
             {

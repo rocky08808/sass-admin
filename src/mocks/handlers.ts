@@ -1,6 +1,6 @@
 import { delay, HttpResponse, http } from 'msw';
 import type { z } from 'zod';
-import { createMemberSchema, updateMemberSchema } from '../schemas/members.schema';
+import { createMemberSchema, updateMemberSchema } from '../schemas/members.model.schema';
 import {
   createSubscriptionSchema,
   updateSubscriptionSchema,

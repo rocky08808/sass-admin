@@ -5,7 +5,7 @@ import {
   type CreateMemberDTO,
   memberSchema,
   type UpdateMemberDTO,
-} from '../../schemas/members.schema';
+} from '../../schemas/members.model.schema';
 
 const url = '/api/members';
 const queryKey = ['members'];

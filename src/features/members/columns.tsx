@@ -1,5 +1,5 @@
 import { type TableColumnsType, Tag } from 'antd';
-import type { Member } from '../../schemas/members.schema';
+import type { Member } from '../../schemas/members.model.schema';
 
 export const memberStatusMeta: Record<Member['status'], { label: string; color: string }> = {
   Active: { label: '正常', color: 'success' },

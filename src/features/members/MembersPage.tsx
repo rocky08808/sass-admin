@@ -2,7 +2,7 @@ import { Card, Typography } from 'antd';
 import { CrudFormDrawer } from '../../components/shared/CrudFormDrawer';
 import { CrudTable } from '../../components/shared/CrudTable';
 import { useCrudPage } from '../../lib/useCrudPage';
-import type { CreateMemberDTO, Member } from '../../schemas/members.schema';
+import type { CreateMemberDTO, Member } from '../../schemas/members.model.schema';
 import { useDeleteMember, useMembers, useSaveMember } from './api';
 import { memberColumns } from './columns';
 import { MembersFormFields } from './MembersFormFields';
